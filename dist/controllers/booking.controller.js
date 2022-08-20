@@ -67,6 +67,17 @@ const createBooking = async (req, res, next) => {
       .json({ result: false, msg: '이미 지나간 시간대에는 예약할 수 없습니다.' });
   }
 
+  //토큰 확인
+  const token = req.rawHeaders[3].split(' ')[1];
+  const base64Payload = token.split('.')[1];
+  const payload = Buffer.from(base64Payload, 'base64');
+  const result = JSON.parse(payload.toString());
+
+  if (result.userId !== req.body.userId)
+    res.status(400).json({
+      msg: '유저가 다릅니다.',
+    });
+
   //예약 신청
   const bookingResult = await bookingService.createBooking(
     blogId,
